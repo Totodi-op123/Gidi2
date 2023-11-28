@@ -8,48 +8,6 @@ from dotenv import load_dotenv
 import pandas as pd
 import hashlib
 
-# Function to hash passwords
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-# Load existing user data
-def load_user_data():
-    try:
-        users = pd.read_csv('users.csv')
-    except FileNotFoundError:
-        users = pd.DataFrame(columns=['username', 'password'])
-    return users
-
-# Save new user data
-def save_user_data(users):
-    users.to_csv('users.csv', index=False)
-
-# User registration form
-def register_user():
-    st.subheader("Create a new account")
-    new_username = st.text_input("Email address", "")
-    new_password = st.text_input("Password", type="password")
-    
-    if st.button("Register"):
-        if new_username and new_password:
-            # Hash the new user's password
-            hashed_password = hash_password(new_password)
-            
-            # Load the user data and check if username already exists
-            users = load_user_data()
-            if new_username in users['username'].values:
-                st.error("This email is already registered.")
-            else:
-                # Add the new user to the dataframe and save
-                users = users.append({'username': new_username, 'password': hashed_password}, ignore_index=True)
-                save_user_data(users)
-                st.success("You have successfully registered.")
-        else:
-            st.error("Please enter a valid email and password.")
-
-# Call the registration function
-register_user()
-
 #load .env file variables
 load_dotenv()
 API_TOKEN = os.getenv("API_TOKEN")

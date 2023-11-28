@@ -50,11 +50,9 @@ if st.button('Analyze'):
     if uploaded_file is not None:
         # Call the query function
         result = query(file_path)
-
-        #Format and display results
                 
-          # Display results
-            st.write(result)
+        # Display results
+        st.write(result)
 
     else:
         st.error("Please upload an audio file first.")

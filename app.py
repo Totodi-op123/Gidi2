@@ -60,5 +60,4 @@ if st.button('Analyze'):
     else:
         st.error("Please upload an audio file first.")
 
-# Clear the cache
-st.legacy_caching.clear_cache()
+

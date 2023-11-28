@@ -51,8 +51,17 @@ if st.button('Analyze'):
         # Call the query function
         result = query(file_path)
 
-        # Display results
-        st.write(result)
+        #Format and display results
+         if result:
+            for index, item in enumerate(result):
+                score = item['score'] * 100  # Convert to percentage
+                label = "fake" if item['label'] == "spoof" else "real"
+
+                # Display results
+                st.write(f"Result {index}: {label} ({score:.2f}%)")
+                
+
+
     else:
         st.error("Please upload an audio file first.")
 

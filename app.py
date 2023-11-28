@@ -16,6 +16,7 @@ st.set_page_config(page_title='Gidi Audio Scanner', layout='wide')
 
 # Define the page header
 st.markdown("<h1 style='text-align: center; color: black;'>GIDI AUDIO</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: black;'>SCAN.DETECT.PROTECT</h1>", unsafe_allow_html=True)
 
 #The API URL and headers
 headers = {"Authorization": f"Bearer {API_TOKEN}"}

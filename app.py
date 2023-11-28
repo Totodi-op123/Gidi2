@@ -33,62 +33,32 @@ def query(filename):
     with open(filename, "rb") as f:
         data = f.read()
     payload = {"wait_for_model": True}
-    # data = json.dumps(payload)
-    response = requests.request("POST", API_URL, headers=headers, data=data, params={"wait_for_model": True})
+    response = requests.request("POST", API_URL, headers=headers, data=data, params=payload)
     return json.loads(response.content.decode("utf-8"))
 
+# Handle file upload and save to the filesystem
 if uploaded_file is not None:
-    # Save the uploaded file to the filesystem
     file_path = os.path.join(TEMP_DIR, uploaded_file.name)
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
-
-    # Display a message
     st.success("File uploaded successfully!")
 
+# Single 'Analyze' button event
 if st.button('Analyze'):
     if uploaded_file is not None:
         # Call the query function
         result = query(file_path)
-                
-        # Display results
-        st.write(result)
-
-    else:
-        st.error("Please upload an audio file first.")
-
-if uploaded_file is not None:
-    # To read file as bytes:
-    bytes_data = uploaded_file.getvalue()
-    
-    # To convert to a string based IO:
-    stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-    
-    # To read file as string:
-    string_data = stringio.read()
-    
-    # Can be used wherever a "file-like" object is accepted:
-    dataframe = pd.read_csv(uploaded_file)
-    st.write(dataframe)
-
-if 'uploaded_file' not in st.session_state:
-    st.session_state['uploaded_file'] = st.file_uploader("Upload audio", type=['wav', 'mp3', 'flac'])
-
-uploaded_file = st.session_state['uploaded_file']
-
-if st.button('Analyze', key='analyze_button'):
-    if uploaded_file is not None:
-        # Save the uploaded audio file to the filesystem
-        with open(os.path.join("tempDir", uploaded_file.name), "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        # Call the query function
-        result = query(os.path.join("tempDir", uploaded_file.name))
         
-        # Display results
-        st.write(result)
+        # Format and display results
+        if result:
+            for index, item in enumerate(result):
+                score = item['score'] * 100  # Convert to percentage
+                label = "Fake" if item['label'] == "spoof" else "Real"
+                st.write(f"Result {index}: {label} ({score:.2f}%)")
+        else:
+            st.error("Analysis failed. Please try again.")
     else:
         st.error("Please upload an audio file first.")
 
-# This line is outside of the 'if' blocks and will always execute
+# Clear the cache
 st.legacy_caching.clear_cache()

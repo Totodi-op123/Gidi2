@@ -29,15 +29,6 @@ uploaded_file = st.file_uploader("Upload audio", type=['wav', 'mp3', 'flac'], ke
 TEMP_DIR = "tempDir"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-if uploaded_file is not None:
-    # Save the uploaded file to the filesystem
-    file_path = os.path.join(TEMP_DIR, uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    # Display a message
-    st.success("File uploaded successfully!")
-
 def query(filename):
     with open(filename, "rb") as f:
         data = f.read()
@@ -46,6 +37,14 @@ def query(filename):
     response = requests.request("POST", API_URL, headers=headers, data=data, params={"wait_for_model": True})
     return json.loads(response.content.decode("utf-8"))
 
+if uploaded_file is not None:
+    # Save the uploaded file to the filesystem
+    file_path = os.path.join(TEMP_DIR, uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    # Display a message
+    st.success("File uploaded successfully!")
 
 if st.button('Analyze'):
     if uploaded_file is not None:

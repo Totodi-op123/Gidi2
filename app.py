@@ -1,25 +1,99 @@
-#import required libraries
 import streamlit as st
-import json
-import requests
-import os
-from io import StringIO, BytesIO
-from dotenv import load_dotenv
 import pandas as pd
 import hashlib
+import os
+from dotenv import load_dotenv
+import requests
+import json
 
-#load .env file variables
+# Function to hash passwords
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# Load existing user data
+def load_user_data():
+    try:
+        users = pd.read_csv('users.csv')
+    except FileNotFoundError:
+        users = pd.DataFrame(columns=['username', 'password'])
+    return users
+
+# Save new user data
+def save_user_data(users):
+    users.to_csv('users.csv', index=False)
+
+# User registration
+def register_user():
+    with st.container():
+        st.subheader("Register")
+        new_username = st.text_input("Email address", key="reg_username")
+        new_password = st.text_input("Password", type="password", key="reg_password")
+        
+        if st.button("Register"):
+            if new_username and new_password:
+                users = load_user_data()
+                if new_username in users['username'].values:
+                    st.error("This email is already registered.")
+                else:
+                    hashed_password = hash_password(new_password)
+                    users = users.append({'username': new_username, 'password': hashed_password}, ignore_index=True)
+                    save_user_data(users)
+                    st.session_state['authenticated'] = True
+                    st.success("You have successfully registered.")
+            else:
+                st.error("Please enter a valid email and password.")
+
+# User login
+def login_user():
+    with st.container():
+        st.subheader("Login")
+        username = st.text_input("Email address", key="login_username")
+        password = st.text_input("Password", type="password", key="login_password")
+        
+        if st.button("Login"):
+            users = load_user_data()
+            hashed_password = hash_password(password)
+            if (users['username'] == username).any() and (users['password'] == hashed_password).any():
+                st.session_state['authenticated'] = True
+                st.success("You are logged in.")
+            else:
+                st.error("Invalid username or password.")
+
+# Audio analysis page
+def audio_analysis_page():
+    st.markdown("<h1 style='text-align: center; color: black;'>GIDI AUDIO</h1>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center; color: black;'>SCAN.DETECT.PROTECT</h4>", unsafe_allow_html=True)
+    
+    uploaded_file = st.file_uploader("Upload audio", type=['wav', 'mp3', 'flac'])
+    
+    if uploaded_file is not None:
+        st.success("File uploaded successfully!")
+        # Proceed with your file processing and audio analysis logic
+        
+        if st.button('Analyze'):
+            # Your audio analysis code here
+            st.write("This is where the audio analysis results will be displayed.")
+            # Placeholder for demonstration. Replace with your analysis code.
+            st.write({"label": "fake", "score": 0.999})
+
+# Main app flow
+if 'authenticated' not in st.session_state:
+    st.session_state['authenticated'] = False
+
+if st.session_state['authenticated']:
+    audio_analysis_page()
+else:
+    login_user()
+    register_user()
+
+# Environment setup
 load_dotenv()
 API_TOKEN = os.getenv("API_TOKEN")
 
-# Set page config
+# Page configuration
 st.set_page_config(page_title='Gidi Audio Scanner', layout='wide')
 
-# Define the page header
-st.markdown("<h1 style='text-align: center; color: white;'>GIDI AUDIO</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: white;'>SCAN.DETECT.PROTECT</h4>", unsafe_allow_html=True)
-
-#The API URL and headers
+# The API URL and headers for audio analysis
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 API_URL = "https://api-inference.huggingface.co/models/HyperMoon/wav2vec2-base-960h-finetuned-deepfake"
 

@@ -126,6 +126,7 @@ if st.button('Analyze'):
         
         # Format and display results
         if result:
+            print(result) 
             for index, item in enumerate(result):
                 score = item['score'] * 100  # Convert to percentage
                 label = "Fake" if item['label'] == "spoof" else "Real"
